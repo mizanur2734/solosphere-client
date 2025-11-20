@@ -8,7 +8,7 @@ import AddJob from "../pages/AddJob";
 import ErrorPage from "../pages/ErrorPage";
 import MyPostedJobs from "../pages/MyPostedJobs";
 
-const router = createBrowserRouter([
+const Router = createBrowserRouter([
   {
     path: "/",
     element: <Main />,
@@ -44,4 +44,4 @@ const router = createBrowserRouter([
   },
 ]);
 
-export default router;
+export default Router;
