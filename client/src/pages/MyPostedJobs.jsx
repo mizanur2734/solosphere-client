@@ -1,21 +1,35 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../provider/AuthProvider";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const MyPostedJobs = () => {
   const { user } = useContext(AuthContext);
   const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
-    const getData = async () => {
+    getData();
+  }, []);
+
+   const getData = async () => {
       const { data } = await axios(
         `${import.meta.env.VITE_API_URL}/jobs/${user?.email}`
       );
       setJobs(data);
     };
-    getData();
-  }, []);
-  console.log(jobs);
+  
+  const handleDelete = async id => {
+    try {
+      const { data } = await axios.delete(`${import.meta.env.VITE_API_URL}/job/${id}`);
+      console.log(data);
+      toast.success("Job posted successfully !");
+      // refresh ui
+      getData()
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  
   return (
     <section className="container px-4 mx-auto pt-12">
       <div className="flex items-center gap-x-3">
@@ -108,7 +122,7 @@ const MyPostedJobs = () => {
                       </td>
                       <td className="px-4 py-4 text-sm whitespace-nowrap">
                         <div className="flex items-center gap-x-6">
-                          <button className="text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none">
+                          <button onClick={() => handleDelete(job._id)} className="text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
