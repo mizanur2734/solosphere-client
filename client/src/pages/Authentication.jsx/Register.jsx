@@ -1,21 +1,36 @@
 import { useContext } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { AuthContext } from "../../provider/AuthProvider";
 import toast from "react-hot-toast";
 import bgimg from "../../assets/images/login.jpg";
 import logo from "../../assets/images/logo.png";
+import { useEffect } from "react";
 
 const Register = () => {
   const navigate = useNavigate();
-  const { user, setUser, createUser, signInWithGoogle, updateUserProfile } =
-    useContext(AuthContext);
+  const location = useLocation();
+  const from = location.state || "/";
+  const {
+    user,
+    setUser,
+    createUser,
+    signInWithGoogle,
+    updateUserProfile,
+    loading,
+  } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [navigate, user]);
 
   // google signIn
   const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle();
       toast.success("Sign-In Successful");
-      navigate("/");
+      navigate(from, { replace: true });
     } catch (error) {
       console.log(error);
       toast.error(error?.message);
@@ -30,30 +45,29 @@ const Register = () => {
     const photo = form.photo.value;
     const email = form.email.value;
     const password = form.password.value;
-    console.log({name, photo, email, password});
+    console.log({ name, photo, email, password });
     try {
       // user login
       const resullt = await createUser(email, password);
       console.log(resullt);
       await updateUserProfile(name, photo);
       setUser({ ...user, photoURL: photo, displayName: name });
-      navigate("/");
+      navigate(from, { replace: true });
       toast.success("SignUp Successful");
     } catch (err) {
       console.log(err);
       toast.error(err?.message);
     }
   };
+
+  if (user || loading) return;
+  
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-306px)] my-12">
       <div className="flex w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-lg  lg:max-w-4xl ">
         <div className="w-full px-6 py-8 md:px-8 lg:w-1/2">
           <div className="flex justify-center mx-auto">
-            <img
-              className="w-auto h-7 sm:h-8"
-              src={logo}
-              alt=""
-            />
+            <img className="w-auto h-7 sm:h-8" src={logo} alt="" />
           </div>
 
           <p className="mt-3 text-xl text-center text-gray-600 ">
