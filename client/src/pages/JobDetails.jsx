@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router";
+import {useLoaderData, useNavigate } from "react-router";
 import { useContext, useState } from "react";
 import { AuthContext } from "../provider/AuthProvider";
 // Date Picker
@@ -11,6 +11,7 @@ const JobDetails = () => {
   const [startDate, setStartDate] = useState(new Date());
   const { user } = useContext(AuthContext);
   const job = useLoaderData();
+  const navigate = useNavigate();
   const {
     _id,
     job_title,
@@ -54,6 +55,8 @@ const JobDetails = () => {
         bidData
       );
       console.log(data);
+      toast.success("Bid placed successfully !");
+      navigate("/my-bids")
     } catch (err) {
       console.log(err);
     }
