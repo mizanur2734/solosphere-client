@@ -21,6 +21,7 @@ const BidRequests = () => {
     setBids(data);
   };
 
+  
   //   handleStatus
   const handleStatus = async (id, prevStatus, status) => {
     console.log(id, prevStatus, status);
