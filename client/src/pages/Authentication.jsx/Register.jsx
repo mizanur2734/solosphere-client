@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import bgimg from "../../assets/images/login.jpg";
 import logo from "../../assets/images/logo.png";
 import { useEffect } from "react";
+import axios from "axios";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -28,7 +29,17 @@ const Register = () => {
   // google signIn
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithGoogle();
+      const result = await signInWithGoogle();
+      //  jwt token
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/jwt`,
+        {
+          email: result?.user?.email,
+        },
+        { withCredentials: true }
+      );
+      console.log(data);
+      
       toast.success("Sign-In Successful");
       navigate(from, { replace: true });
     } catch (error) {
@@ -48,10 +59,20 @@ const Register = () => {
     console.log({ name, photo, email, password });
     try {
       // user login
-      const resullt = await createUser(email, password);
-      console.log(resullt);
+      const result = await createUser(email, password);
+      console.log(result);
       await updateUserProfile(name, photo);
-      setUser({ ...user, photoURL: photo, displayName: name });
+      setUser({ ...result?.user, photoURL: photo, displayName: name });
+      // jwt token
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/jwt`,
+        {
+          email: result?.user?.email,
+        },
+        { withCredentials: true }
+      );
+      console.log(data);
+
       navigate(from, { replace: true });
       toast.success("SignUp Successful");
     } catch (err) {
@@ -61,7 +82,7 @@ const Register = () => {
   };
 
   if (user || loading) return;
-  
+
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-306px)] my-12">
       <div className="flex w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-lg  lg:max-w-4xl ">

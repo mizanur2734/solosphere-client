@@ -5,6 +5,7 @@ import { useContext } from "react";
 import { AuthContext } from "../../provider/AuthProvider";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
+import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,16 +14,26 @@ const Login = () => {
 
   useEffect(() => {
     if (user) {
-      navigate("/")
+      navigate("/");
     }
-  }, [navigate, user])
+  }, [navigate, user]);
 
   const from = location.state || "/";
 
   // google signIn
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithGoogle();
+      const result = await signInWithGoogle();
+      console.log(result.user);
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/jwt`,
+        {
+          email: result?.user?.email,
+        },
+        { withCredentials: true }
+      );
+      console.log(data);
+
       toast.success("Sign-In Successful");
       navigate(from, { replace: true });
     } catch (error) {
@@ -43,14 +54,14 @@ const Login = () => {
       const resullt = await signIn(email, password);
       console.log(resullt);
       toast.success("Sign-In Successful");
-       navigate(from, { replace: true });
+      navigate(from, { replace: true });
     } catch (err) {
       console.log(err);
       toast.error(err?.message);
     }
   };
 
-  if(user || loading) return
+  if (user || loading) return;
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-306px)] my-12">
