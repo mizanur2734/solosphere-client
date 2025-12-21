@@ -152,6 +152,7 @@ const MyBids = () => {
                           ></span>
                           <h2 className='text-sm font-normal '>{bid.status}</h2>
                         </div>
+                        
                       </td>
                       <td className='px-4 py-4 text-sm whitespace-nowrap'>
                         {/* Complete Button */}

@@ -1,14 +1,17 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 9000;
 
 const app = express();
+app.use(cookieParser());
 
 const corsOptions = {
   origin: ["http://localhost:5173"],
-  Credentials: true,
+  credentials: true,
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
@@ -29,6 +32,36 @@ async function run() {
   try {
     const jobsCollection = client.db("solosphere").collection("jobs");
     const bidsCollection = client.db("solosphere").collection("bids");
+
+    app.post("/jwt", async (req, res) => {
+      const user = req.body;
+
+      const token = jwt.sign(
+        { email: user.email },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        })
+        .send({ success: true });
+    });
+
+    // Clear token cookie on logout
+    app.get('/logout', (req, res) => {
+       res
+        .clearCookie("token",{
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+          maxAge: 0,
+        })
+        .send({ success: true });
+    })
 
     // get all jobs data from db
     app.get("/jobs", async (req, res) => {
@@ -119,7 +152,7 @@ async function run() {
       };
       const result = await bidsCollection.updateOne(query, updateDoc);
       res.send(result);
-    })
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
